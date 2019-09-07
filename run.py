@@ -13,11 +13,11 @@ import os
 import copy
 import argparse
 import re
-from util import imshow
+from util import imshow, preprocess_data
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-def train_model(model, criterion, optimizer, scheduler, num_epochs=50):
+def train_model(model, criterion, optimizer, scheduler, data_dir, num_epochs=50):
     data_transforms = {
         'train': transforms.Compose([
             transforms.RandomResizedCrop(224),
@@ -35,7 +35,6 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=50):
         ]),
     }
 
-    data_dir = 'data/mitochondria'
     image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
                                               data_transforms[x])
                       for x in ['train', 'val']}
@@ -44,8 +43,6 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=50):
                   for x in ['train', 'val']}
     dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
     class_names = image_datasets['train'].classes
-    __import__('ipdb').set_trace()
-
 
     since = time.time()
     best_model_wts = copy.deepcopy(model.state_dict())
@@ -114,11 +111,10 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=50):
         }, 'best.pth')
     return model
 
-def main():
-
+def main(args):
     # load_model
-    __import__('ipdb').set_trace()
-    model = torchvision.models.resnet18(pretrained=True)
+    if args.network == 'resnet18':
+        model = torchvision.models.resnet18(pretrained=True)
     for param in model.parameters():
         param.requires_grad = False
     # Parameters of newly constructed modules have requires_grad=True by default
@@ -128,37 +124,36 @@ def main():
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.fc.parameters(), lr=0.001)
     scheduler = lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
-    model = train_model(model, criterion, optimizer, scheduler)
+    model = train_model(model, criterion, optimizer, scheduler, args.dataset)
 
-def prepare_data():
+def prepare_data(args):
+    '''
+    you need to modify this dir path
+    input dir denote the original data, which may be not divided
+    we recommend that you need to write your own preprocess_data
+    the target of preprocess data is to divide original data into train and val
+    the test dir may be like the following
+        data/
+           train/
+              class1/
+              class2/
+              ...
+              classn/
+           val/
+              class1/
+              class2/
+              ...
+              classn/
+
+    '''
     input_dir = '/home/haotongl/datasets/JPEG'
     output_dir = 'data/mitochondria'
-    classes = os.listdir(input_dir)
-    os.mkdir(output_dir)
-    os.mkdir(os.path.join(output_dir, 'train'))
-    os.mkdir(os.path.join(output_dir, 'val'))
-    for cls in classes:
-        os.mkdir(os.path.join(output_dir, 'train', cls))
-        os.mkdir(os.path.join(output_dir, 'val', cls))
-        jpegs = os.listdir(os.path.join(input_dir, cls))
-        idxs = np.random.random((len(jpegs)))
-        for i in range(len(jpegs)):
-            jpgs = re.split('\(|\)' ,jpegs[i])
-            if cls == 'normal':
-                jpg = '1\ '+'\('+jpgs[1]+'\)'+jpgs[2]
-            else:
-                jpg = jpgs[0]+'\('+jpgs[1]+'\)'+jpgs[2]
-            if idxs[i] > 0.7:
-                os.system('cp {} {}'.format(os.path.join(input_dir, cls, jpg),
-                        os.path.join(output_dir, 'val', cls, jpg)
-                        ))
-            else:
-                os.system('cp {} {}'.format(os.path.join(input_dir, cls, jpg),
-                        os.path.join(output_dir, 'train', cls, jpg)
-                        ))
+    preprocess_data(input_dir, output_dir)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--type", default='main', type=str)
+    parser.add_argument("--dataset", default='data/mitochondria', type=str)
+    parser.add_argument("--network", default='resnet18', type=str)
     args = parser.parse_args()
-    globals()[args.type]()
+    globals()[args.type](args)
