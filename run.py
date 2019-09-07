@@ -13,6 +13,7 @@ import os
 import copy
 import argparse
 import re
+from util import imshow
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -43,6 +44,7 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=50):
                   for x in ['train', 'val']}
     dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
     class_names = image_datasets['train'].classes
+    __import__('ipdb').set_trace()
 
 
     since = time.time()
@@ -115,6 +117,7 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=50):
 def main():
 
     # load_model
+    __import__('ipdb').set_trace()
     model = torchvision.models.resnet18(pretrained=True)
     for param in model.parameters():
         param.requires_grad = False
