@@ -12,40 +12,39 @@ import time
 import os
 import copy
 import argparse
-
-plt.ion()   # interactive mode
+import re
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-data_transforms = {
-    'train': transforms.Compose([
-        transforms.RandomResizedCrop(224),
-        transforms.RandomHorizontalFlip(),
-	transforms.RandomVerticalFlip(),
-	transforms.RandomAffine(180, translate=None, scale=None, shear=None, resample=False, fillcolor=0),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ]),
-    'val': transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ]),
-}
-
-data_dir = 'data/mitochondria'
-image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
-                                          data_transforms[x])
-                  for x in ['train', 'val']}
-dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4,
-                                             shuffle=True, num_workers=4)
-              for x in ['train', 'val']}
-dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
-class_names = image_datasets['train'].classes
-
-
 
 def train_model(model, criterion, optimizer, scheduler, num_epochs=50):
+    data_transforms = {
+        'train': transforms.Compose([
+            transforms.RandomResizedCrop(224),
+            transforms.RandomHorizontalFlip(),
+    	transforms.RandomVerticalFlip(),
+    	transforms.RandomAffine(180, translate=None, scale=None, shear=None, resample=False, fillcolor=0),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ]),
+        'val': transforms.Compose([
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ]),
+    }
+
+    data_dir = 'data/mitochondria'
+    image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
+                                              data_transforms[x])
+                      for x in ['train', 'val']}
+    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4,
+                                                 shuffle=True, num_workers=4)
+                  for x in ['train', 'val']}
+    dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
+    class_names = image_datasets['train'].classes
+
+
     since = time.time()
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
@@ -127,6 +126,33 @@ def main():
     optimizer = optim.Adam(model.fc.parameters(), lr=0.001)
     scheduler = lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
     model = train_model(model, criterion, optimizer, scheduler)
+
+def prepare_data():
+    input_dir = '/home/haotongl/datasets/JPEG'
+    output_dir = 'data/mitochondria'
+    classes = os.listdir(input_dir)
+    os.mkdir(output_dir)
+    os.mkdir(os.path.join(output_dir, 'train'))
+    os.mkdir(os.path.join(output_dir, 'val'))
+    for cls in classes:
+        os.mkdir(os.path.join(output_dir, 'train', cls))
+        os.mkdir(os.path.join(output_dir, 'val', cls))
+        jpegs = os.listdir(os.path.join(input_dir, cls))
+        idxs = np.random.random((len(jpegs)))
+        for i in range(len(jpegs)):
+            jpgs = re.split('\(|\)' ,jpegs[i])
+            if cls == 'normal':
+                jpg = '1\ '+'\('+jpgs[1]+'\)'+jpgs[2]
+            else:
+                jpg = jpgs[0]+'\('+jpgs[1]+'\)'+jpgs[2]
+            if idxs[i] > 0.7:
+                os.system('cp {} {}'.format(os.path.join(input_dir, cls, jpg),
+                        os.path.join(output_dir, 'val', cls, jpg)
+                        ))
+            else:
+                os.system('cp {} {}'.format(os.path.join(input_dir, cls, jpg),
+                        os.path.join(output_dir, 'train', cls, jpg)
+                        ))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
