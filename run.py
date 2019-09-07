@@ -133,7 +133,8 @@ def prepare_data(args):
     we recommend that you need to write your own preprocess_data
     the target of preprocess data is to divide original data into train and val
     the test dir may be like the following
-        data/
+    data/
+       data_dir/
            train/
               class1/
               class2/
