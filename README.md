@@ -10,8 +10,10 @@ ubuntu16.04 + cuda9.0 + pytorch0.4.1 is our test environment(garbage gpu mx940)
 ## usage
 
 1. preprocess data
+
   we need to make the test data like the following
-    data/
+  '''
+  data/
        data_dir/
            train/
               class1/
@@ -23,7 +25,8 @@ ubuntu16.04 + cuda9.0 + pytorch0.4.1 is our test environment(garbage gpu mx940)
               class2/
               ...
               classn/
-  
+
+  '''
   we have writen a preprocess for our srtp data, you can refer to it
 
   python run.py --type prepare_data
