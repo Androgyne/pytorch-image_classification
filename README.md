@@ -1,16 +1,21 @@
 # pytorch image classification
-'''
-this is image classification for our srtp 2019
 
-'''
+this is image classification for our srtp 2019
 
 ## Colab
 Google Colab provide us with Tesla K80 GPU. Follow the following instructions to use
 
-1. 
+1. Go to https://colab.research.google.com
 
+2. File/upload notebook/github search
 
+https://github.com/Androgyne/pytorch-image_classification.git
 
+open ImageClassification.ipynb
+
+3. Make sure you have chosen GPU
+
+4. Follow the instruction from notebook
 
 ## Local
 
