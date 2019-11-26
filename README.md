@@ -1,13 +1,26 @@
 # pytorch image classification
 '''
 this is image classification for our srtp 2019
+
 '''
-## install
+
+## Colab
+Google Colab provide us with Tesla K80 GPU. Follow the following instructions to use
+
+1. 
+
+
+
+
+## Local
+
+
+### install
 we recommend you use gpu to test for better experience
 
 ubuntu16.04 + cuda9.0 + pytorch0.4.1 is our test environment(garbage gpu mx940)
 
-## usage
+### usage
 
 1. preprocess data
 
