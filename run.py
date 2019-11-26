@@ -139,8 +139,7 @@ def prepare_data(args):
     input_dir = args.input_dir
     output_dir = args.output_dir
     ratio = args.train_test_ratio
-    __import__('ipdb').set_trace)
-    preprocess_data(input_dir, output_dir)
+    preprocess_data(input_dir, output_dir, ratio)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -151,6 +150,6 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", default=50, type=int)
     parser.add_argument("--input_dir", default='/home/haotongl/datasets/JPEG', type=str)
     parser.add_argument("--output_dir", default='data/mitochondria', type=str)
-    parser.add_argument("--train_test_ratio", default=0.7, type=int)
+    parser.add_argument("--train_test_ratio", default=0.7, type=float)
     args = parser.parse_args()
     globals()[args.type](args)
