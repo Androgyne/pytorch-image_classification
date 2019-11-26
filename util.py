@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+import re
 
 def imshow(inp, title=None):
     """Imshow for Tensor."""
@@ -22,6 +24,7 @@ def preprocess_data(input_dir, output_dir, p=0.7):
     this function is mainly handle complex '(' ')' ' ' in the image name
 
     '''
+    os.system('rm -rf ' + output_dir)
     classes = os.listdir(input_dir)
     os.mkdir(output_dir)
     os.mkdir(os.path.join(output_dir, 'train'))
@@ -33,10 +36,7 @@ def preprocess_data(input_dir, output_dir, p=0.7):
         idxs = np.random.random((len(jpegs)))
         for i in range(len(jpegs)):
             jpgs = re.split('\(|\)' ,jpegs[i])
-            if cls == 'normal':
-                jpg = '1\ '+'\('+jpgs[1]+'\)'+jpgs[2]
-            else:
-                jpg = jpgs[0]+'\('+jpgs[1]+'\)'+jpgs[2]
+            jpg = jpgs[0]+'\('+jpgs[1]+'\)'+jpgs[2]
             if idxs[i] > p:
                 os.system('cp {} {}'.format(os.path.join(input_dir, cls, jpg),
                         os.path.join(output_dir, 'val', cls, jpg)

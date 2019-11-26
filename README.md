@@ -42,9 +42,10 @@ ubuntu16.04 + cuda9.0 + pytorch0.4.1 is our test environment(garbage gpu mx940)
 
 3. test
 
-'''
+```
   python run.py --test True
-'''
+```
+
 
 ## solution
 

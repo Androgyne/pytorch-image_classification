@@ -73,6 +73,9 @@ def make_model(classes, args):
         num_ftrs = model.fc.in_features
         model.fc = nn.Linear(num_ftrs, len(classes))
         model = model.to(device)
+    elif args.network == 'vgg16':
+        __import__('ipdb').set_trace()
+        a = 1
     else:
         print("You can finish this by yourself")
     return model
@@ -88,7 +91,6 @@ def main(args):
     model = make_model(classes, args)
 
     trainer = make_trainer(model, args)
-
     if args.test:
         best_model = torch.load('best.pth')
         trainer.model.load_state_dict(best_model['net'])
@@ -134,8 +136,10 @@ def prepare_data(args):
               classn/
 
     '''
-    input_dir = '/home/haotongl/datasets/JPEG'
-    output_dir = 'data/mitochondria'
+    input_dir = args.input_dir
+    output_dir = args.output_dir
+    ratio = args.train_test_ratio
+    __import__('ipdb').set_trace)
     preprocess_data(input_dir, output_dir)
 
 if __name__ == "__main__":
@@ -145,5 +149,8 @@ if __name__ == "__main__":
     parser.add_argument("--network", default='resnet18', type=str)
     parser.add_argument("--test", default=False, type=bool)
     parser.add_argument("--epochs", default=50, type=int)
+    parser.add_argument("--input_dir", default='/home/haotongl/datasets/JPEG', type=str)
+    parser.add_argument("--output_dir", default='data/mitochondria', type=str)
+    parser.add_argument("--train_test_ratio", default=0.7, type=int)
     args = parser.parse_args()
     globals()[args.type](args)
