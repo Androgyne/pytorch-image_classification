@@ -74,8 +74,14 @@ def make_model(classes, args):
         model.fc = nn.Linear(num_ftrs, len(classes))
         model = model.to(device)
     elif args.network == 'vgg16':
-        __import__('ipdb').set_trace()
-        a = 1
+        model = torchvision.models.vgg16(pretrained=True)
+        for param in model.parameters():
+            param.requires_grad = False
+        # Parameters of newly constructed modules have requires_grad=True by default
+        num_ftrs = model.classifier[6].in_features
+        model.classifier[6] = nn.Linear(num_ftrs, len(classes))
+        model = model.to(device)
+   #model = torchvision.models.(pretrained=True)
     else:
         print("You can finish this by yourself")
     return model
@@ -100,7 +106,10 @@ def main(args):
         best_model_wts = copy.deepcopy(trainer.model.state_dict())
         best_acc = 0.0
         criterion = nn.CrossEntropyLoss()
-        optimizer = optim.Adam(model.fc.parameters(), lr=0.001)
+        if (args.network == 'resnet18'):
+            optimizer = optim.Adam(model.fc.parameters(), lr=0.001)
+        elif (args.network == 'vgg16'):
+            optimizer = optim.Adam(model.classifier[6].parameters(), lr=0.001)
         scheduler = lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
 
         for i in range(args.epochs):
